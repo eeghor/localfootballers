@@ -15,7 +15,11 @@ class LocalFootballerScraper:
 								  'china': ['https://en.wikipedia.org/wiki/Chinese_Super_League',
 								  			'https://en.wikipedia.org/wiki/China_League_One'],
 								  'mexico': ['https://en.wikipedia.org/wiki/Liga_MX',
-								  			'https://en.wikipedia.org/wiki/Ascenso_MX']}
+								  			 'https://en.wikipedia.org/wiki/Ascenso_MX'],
+								  'vietnam': ['https://en.wikipedia.org/wiki/V.League_1',
+								  			  'https://en.wikipedia.org/wiki/V.League_2'],
+								  'japan': ['https://en.wikipedia.org/wiki/J.League',
+								  			  'https://en.wikipedia.org/wiki/J2_League']}
 		self.COUNTRY = country
 		self.team_urls = {}
 		self.DATA_DIR = 'collected_data'
@@ -35,9 +39,10 @@ class LocalFootballerScraper:
 
 		for a in toc.find_all("a"):
 			tx = a.text.lower().strip()
-			if 'former' not in tx:
-				if set(tx.split()) & {'current', 'clubs', 'members'}:
+			if ('former' not in tx) and ('founding' not in tx):
+				if ('current' in tx) or ('clubs' in tx) or ('members' in tx):
 					_id = a['href'][1:]
+					break
 		if not _id:
 			return None
 
@@ -127,7 +132,8 @@ class LocalFootballerScraper:
 
 			print(f'{team.upper()}...')
 
-			for span_id in 'Current_squad First_team Reserve_team On_loan Reserve_squad First_team_squad'.split():
+			for span_id in """Current_squad First_team First-team_squad Reserve_team On_loan 
+								Out_on_loan Reserve_squad First_team_squad Reserve_teams""".split():
 				self._get_squad_table(self.team_urls[team], span_id)
 
 		return self
@@ -141,7 +147,7 @@ class LocalFootballerScraper:
 
 if __name__ == '__main__':
 
-	c = LocalFootballerScraper('mexico').get_names().save_to_file()
+	c = LocalFootballerScraper('japan').get_names().save_to_file()
 
 
 
