@@ -19,7 +19,11 @@ class LocalFootballerScraper:
 								  'vietnam': ['https://en.wikipedia.org/wiki/V.League_1',
 								  			  'https://en.wikipedia.org/wiki/V.League_2'],
 								  'japan': ['https://en.wikipedia.org/wiki/J.League',
-								  			  'https://en.wikipedia.org/wiki/J2_League']}
+								  			  'https://en.wikipedia.org/wiki/J2_League'],
+								  'spain': ['https://en.wikipedia.org/wiki/La_Liga',
+								  			'https://en.wikipedia.org/wiki/Segunda_División'],
+								  'croatia': ['https://en.wikipedia.org/wiki/Croatian_First_Football_League'],
+								  'serbia': ['https://en.wikipedia.org/wiki/Serbian_SuperLiga']}
 		self.COUNTRY = country
 		self.team_urls = {}
 		self.DATA_DIR = 'collected_data'
@@ -147,7 +151,7 @@ class LocalFootballerScraper:
 
 if __name__ == '__main__':
 
-	c = LocalFootballerScraper('japan').get_names().save_to_file()
+	c = LocalFootballerScraper('serbia').get_names().save_to_file()
 
 
 

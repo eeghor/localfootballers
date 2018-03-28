@@ -8,5 +8,10 @@ So far, the script has been confirmed working on the top two
 * Mexican
 * Japanese
 * Vietnamese 
+* Spanish
 
 leagues.
+
+Only the top leagues are covered for the following countries:
+* Croatia
+* Serbia
