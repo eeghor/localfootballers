@@ -9,6 +9,9 @@ So far, the script has been confirmed working on the top two
 * Japanese
 * Vietnamese 
 * Spanish
+* Turkish
+* Indian
+* Greek
 
 leagues.
 

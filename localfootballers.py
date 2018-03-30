@@ -10,20 +10,26 @@ class LocalFootballerScraper:
 
 		self.wiki_url = 'https://en.wikipedia.org'
 
-		self.domestic_leagues = {'france': ['https://en.wikipedia.org/wiki/Ligue_1',
-											'https://en.wikipedia.org/wiki/Ligue_2'],
-								  'china': ['https://en.wikipedia.org/wiki/Chinese_Super_League',
-								  			'https://en.wikipedia.org/wiki/China_League_One'],
-								  'mexico': ['https://en.wikipedia.org/wiki/Liga_MX',
-								  			 'https://en.wikipedia.org/wiki/Ascenso_MX'],
-								  'vietnam': ['https://en.wikipedia.org/wiki/V.League_1',
-								  			  'https://en.wikipedia.org/wiki/V.League_2'],
-								  'japan': ['https://en.wikipedia.org/wiki/J.League',
-								  			  'https://en.wikipedia.org/wiki/J2_League'],
-								  'spain': ['https://en.wikipedia.org/wiki/La_Liga',
-								  			'https://en.wikipedia.org/wiki/Segunda_División'],
-								  'croatia': ['https://en.wikipedia.org/wiki/Croatian_First_Football_League'],
-								  'serbia': ['https://en.wikipedia.org/wiki/Serbian_SuperLiga']}
+		self.domestic_leagues = {'france':  	[f'{self.wiki_url}/wiki/Ligue_1',
+												 f'{self.wiki_url}/wiki/Ligue_2'],
+								  'china':  	[f'{self.wiki_url}/wiki/Chinese_Super_League',
+								  				 f'{self.wiki_url}/wiki/China_League_One'],
+								  'mexico': 	[f'{self.wiki_url}/wiki/Liga_MX',
+								  				 f'{self.wiki_url}/wiki/Ascenso_MX'],
+								  'vietnam':	[f'{self.wiki_url}/wiki/V.League_1',
+								  			 	 f'{self.wiki_url}/wiki/V.League_2'],
+								  'japan': 		[f'{self.wiki_url}/wiki/J.League',
+								  				 f'{self.wiki_url}/wiki/J2_League'],
+								  'spain': 		[f'{self.wiki_url}/wiki/La_Liga',
+								  				 f'{self.wiki_url}/wiki/Segunda_División'],
+								  'croatia': 	[f'{self.wiki_url}/wiki/Croatian_First_Football_League'],
+								  'serbia': 	[f'{self.wiki_url}/wiki/Serbian_SuperLiga'],
+								  'turkey': 	[f'{self.wiki_url}/wiki/Süper_Lig',
+								  			 	 f'{self.wiki_url}/wiki/TFF_First_League'],
+								  'india': 		[f'{self.wiki_url}/wiki/I-League',
+								  				 f'{self.wiki_url}/wiki/I-League_2nd_Division'],
+								  'greece': 	[f'{self.wiki_url}/wiki/Superleague_Greece',
+								  				 f'{self.wiki_url}/wiki/Football_League_(Greece)']}
 		self.COUNTRY = country
 		self.team_urls = {}
 		self.DATA_DIR = 'collected_data'
@@ -136,8 +142,8 @@ class LocalFootballerScraper:
 
 			print(f'{team.upper()}...')
 
-			for span_id in """Current_squad First_team First-team_squad Reserve_team On_loan 
-								Out_on_loan Reserve_squad First_team_squad Reserve_teams""".split():
+			for span_id in """Current_squad First_team First-team_squad First-Team_Squad First_Team_Squad Reserve_team On_loan 
+								Out_on_loan Reserve_squad First_team_squad Senior_team_squad Reserve_teams""".split():
 				self._get_squad_table(self.team_urls[team], span_id)
 
 		return self
@@ -151,7 +157,7 @@ class LocalFootballerScraper:
 
 if __name__ == '__main__':
 
-	c = LocalFootballerScraper('serbia').get_names().save_to_file()
+	c = LocalFootballerScraper('greece').get_names().save_to_file()
 
 
 
