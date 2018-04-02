@@ -12,6 +12,8 @@ So far, the script has been confirmed working on the top two
 * Turkish
 * Indian
 * Greek
+* Italian
+* South Korean
 
 leagues.
 

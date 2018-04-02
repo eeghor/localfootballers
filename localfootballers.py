@@ -29,7 +29,11 @@ class LocalFootballerScraper:
 								  'india': 		[f'{self.wiki_url}/wiki/I-League',
 								  				 f'{self.wiki_url}/wiki/I-League_2nd_Division'],
 								  'greece': 	[f'{self.wiki_url}/wiki/Superleague_Greece',
-								  				 f'{self.wiki_url}/wiki/Football_League_(Greece)']}
+								  				 f'{self.wiki_url}/wiki/Football_League_(Greece)'],
+								  'south korea':		[f'{self.wiki_url}/wiki/K_League_1',
+								  				 f'{self.wiki_url}/wiki/K_League_2'],
+								  'italy': 		[f'{self.wiki_url}/wiki/Serie_A',
+								  				 f'{self.wiki_url}/wiki/Serie_B']}
 		self.COUNTRY = country
 		self.team_urls = {}
 		self.DATA_DIR = 'collected_data'
@@ -157,7 +161,7 @@ class LocalFootballerScraper:
 
 if __name__ == '__main__':
 
-	c = LocalFootballerScraper('greece').get_names().save_to_file()
+	c = LocalFootballerScraper('italy').get_names().save_to_file()
 
 
 
