@@ -30,10 +30,13 @@ class LocalFootballerScraper:
 								  				 f'{self.wiki_url}/wiki/I-League_2nd_Division'],
 								  'greece': 	[f'{self.wiki_url}/wiki/Superleague_Greece',
 								  				 f'{self.wiki_url}/wiki/Football_League_(Greece)'],
-								  'south korea':		[f'{self.wiki_url}/wiki/K_League_1',
-								  				 f'{self.wiki_url}/wiki/K_League_2'],
+								  'south korea': [f'{self.wiki_url}/wiki/K_League_1',
+								  				  f'{self.wiki_url}/wiki/K_League_2'],
 								  'italy': 		[f'{self.wiki_url}/wiki/Serie_A',
-								  				 f'{self.wiki_url}/wiki/Serie_B']}
+								  				 f'{self.wiki_url}/wiki/Serie_B'],
+								  'slovenia': 	[f'{self.wiki_url}/wiki/Slovenian_PrvaLiga'],
+								  'england': 	[f'{self.wiki_url}/wiki/Premier_League',
+								  				 f'{self.wiki_url}/wiki/EFL_Championship']}
 		self.COUNTRY = country
 		self.team_urls = {}
 		self.DATA_DIR = 'collected_data'
@@ -53,7 +56,7 @@ class LocalFootballerScraper:
 
 		for a in toc.find_all("a"):
 			tx = a.text.lower().strip()
-			if ('former' not in tx) and ('founding' not in tx):
+			if ('former' not in tx) and ('founding' not in tx) and ('performance' not in tx):
 				if ('current' in tx) or ('clubs' in tx) or ('members' in tx):
 					_id = a['href'][1:]
 					break
@@ -65,9 +68,34 @@ class LocalFootballerScraper:
 		if _h2:
 
 			try:
-				tb = _h2.find_next_sibling('table', 'wikitable')
+				tbs = _h2.find_next_siblings('table', 'wikitable')
 			except:
-				print('can\'t find the table with team names!')
+				print('can\'t find any tables with team names!')
+				return self
+
+			tb = None    # team table
+
+			for _tb in tbs:
+
+				_headers = _tb.find_all('th')
+
+				if _headers:
+
+					_ = {h.text.lower().strip() for h in _headers}
+					_header_words = {w for h in _ for w in h.split()}
+
+					if {'performance', 'champions', 'wins', 'years', 'winning'} & _header_words:
+						continue
+				
+				first_row = _tb.find('tr')
+				if first_row:
+					hdr = first_row.find('th')
+					if hdr:
+						if hdr.text.lower().strip() == 'club':
+							tb = _tb
+							break
+			if not tb:
+				print('can\'t find any tables with team names!')
 				return self
 
 			rows = tb.find_all('tr')
@@ -77,7 +105,6 @@ class LocalFootballerScraper:
 				return self
 			else:
 				for row in rows:
-			
 					td = row.find('td')
 			
 					if td:
@@ -88,6 +115,44 @@ class LocalFootballerScraper:
 						continue
 			return self
 
+	def _find_flag_player(self, tab):
+		"""
+		find which columns contain country flags and player names
+		"""
+
+		idx_country = idx_player = None
+
+		_first_row = tab.find('tr')
+
+		if not _first_row:
+			print('table without rows?')
+			return None
+		else:
+			td_children = sum([1 for c in _first_row.children if c.name == 'td'])
+			if td_children == 3:
+				_hs = _first_row.find('td').find_all('th')
+			else:
+				_hs = _first_row.find_all('th')
+			if not _hs:
+				print('table has no header!')
+				return None
+			else:
+				for i, h in enumerate(_hs):
+					header_text = h.text.lower().strip()
+					if 'player' in header_text:
+						idx_player = i
+					if 'nation' in header_text:
+						idx_country = i
+		
+		if not idx_country:
+			player_row = tab.find(class_='vcard agent')
+			for i, _ in enumerate(player_row.find_all('td')):
+				if _.find(class_='flagicon'):
+					idx_country = i
+					break
+
+		return (idx_country, idx_player)
+		
 
 	def _get_squad_table(self, url, span_id):
 
@@ -113,27 +178,48 @@ class LocalFootballerScraper:
 					return self
 
 				else:
+
+					idx_country, idx_player = self._find_flag_player(tb)
+
+					print(f'idx_country = {idx_country}, idx_player={idx_player}')
 				
 					rows_pl = tb.find_all(class_='vcard agent')
 	
 					if rows_pl:
 	
 						for row in rows_pl:
+
+							_country = _player = None
 			
-							for i, td in enumerate(row.find_all('td')):
-			
-								if i == 1:
+							for i, td in enumerate(row.find_all('td')):		
+
+								if i == idx_country:
+
 									try:
-										sp = td.find('span')
+										_country = td.find('a')['title'].lower()
 									except:
-										continue
-									try:
-										a = sp.find('a')
-									except:
-										continue
-			
-								if (i == 3) and (a['title'].lower() == self.COUNTRY):
-									self.players.add(td.text.lower().strip().split('(')[0].strip())
+										print('can\'t find country!')
+
+								if i == idx_player:
+
+									_player = td.text.lower().strip().split('(')[0].strip()
+
+								# if i == idx:
+								# 	try:
+								# 		sp = td.find('span')
+								# 	except:
+								# 		continue
+
+								# 	a = sp.find('a')
+								# 	if not a:
+								# 		continue
+
+								
+								# if (i == idx_country) and (a['title'].lower() == self.COUNTRY):
+								# 	self.players.add(td.text.lower().strip().split('(')[0].strip())
+
+							if _country and _player and (_country == self.COUNTRY):
+								self.players.add(_player)
 	
 		return self
 
@@ -161,7 +247,7 @@ class LocalFootballerScraper:
 
 if __name__ == '__main__':
 
-	c = LocalFootballerScraper('italy').get_names().save_to_file()
+	c = LocalFootballerScraper('england').get_names().save_to_file()
 
 
 
