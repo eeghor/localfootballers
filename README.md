@@ -13,6 +13,7 @@ So far, the script has been confirmed working on the top two
 * Indian
 * Greek
 * Italian
+* English
 * South Korean
 
 leagues.
@@ -20,3 +21,4 @@ leagues.
 Only the top leagues are covered for the following countries:
 * Croatia
 * Serbia
+* Slovenia

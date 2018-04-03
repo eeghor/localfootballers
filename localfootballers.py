@@ -174,14 +174,12 @@ class LocalFootballerScraper:
 				tb = _h2.find_next_sibling('table')
 				
 				if not tb:
-					print('found a header but no table!')
+					print('headline not followed by a table!!')
 					return self
 
 				else:
 
 					idx_country, idx_player = self._find_flag_player(tb)
-
-					print(f'idx_country = {idx_country}, idx_player={idx_player}')
 				
 					rows_pl = tb.find_all(class_='vcard agent')
 	
@@ -202,21 +200,14 @@ class LocalFootballerScraper:
 
 								if i == idx_player:
 
-									_player = td.text.lower().strip().split('(')[0].strip()
+									_spans = td.find_all('span')
 
-								# if i == idx:
-								# 	try:
-								# 		sp = td.find('span')
-								# 	except:
-								# 		continue
+									if _spans:
 
-								# 	a = sp.find('a')
-								# 	if not a:
-								# 		continue
-
-								
-								# if (i == idx_country) and (a['title'].lower() == self.COUNTRY):
-								# 	self.players.add(td.text.lower().strip().split('(')[0].strip())
+										_player = _spans[-1].text.lower().strip().split('(')[0].strip()
+										
+										if 'on loan' in _player:
+											_player = _player.split('on loan')[0].strip()
 
 							if _country and _player and (_country == self.COUNTRY):
 								self.players.add(_player)
