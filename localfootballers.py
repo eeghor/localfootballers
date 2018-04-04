@@ -36,7 +36,10 @@ class LocalFootballerScraper:
 								  				 f'{self.wiki_url}/wiki/Serie_B'],
 								  'slovenia': 	[f'{self.wiki_url}/wiki/Slovenian_PrvaLiga'],
 								  'england': 	[f'{self.wiki_url}/wiki/Premier_League',
-								  				 f'{self.wiki_url}/wiki/EFL_Championship']}
+								  				 f'{self.wiki_url}/wiki/EFL_Championship'],
+								  'saudi arabia': [f'{self.wiki_url}/wiki/Saudi_Professional_League'],
+								  'united arab emirates': [f'{self.wiki_url}/wiki/UAE_Pro-League'],
+								  'qatar': [f'{self.wiki_url}/wiki/Qatar_Stars_League']}
 		self.COUNTRY = country
 		self.team_urls = {}
 		self.DATA_DIR = 'collected_data'
@@ -57,7 +60,7 @@ class LocalFootballerScraper:
 		for a in toc.find_all("a"):
 			tx = a.text.lower().strip()
 			if ('former' not in tx) and ('founding' not in tx) and ('performance' not in tx):
-				if ('current' in tx) or ('clubs' in tx) or ('members' in tx):
+				if ('current' in tx) or ('clubs' in tx) or ('members' in tx) or ('teams' in tx):
 					_id = a['href'][1:]
 					break
 		if not _id:
@@ -84,14 +87,20 @@ class LocalFootballerScraper:
 					_ = {h.text.lower().strip() for h in _headers}
 					_header_words = {w for h in _ for w in h.split()}
 
-					if {'performance', 'champions', 'wins', 'years', 'winning'} & _header_words:
+					if {'performance', 'champions', 'wins', 'years', 'winning', 'staff'} & _header_words:
 						continue
 				
-				first_row = _tb.find('tr')
+				rows = _tb.find_all('tr')
+
+				first_row = rows[0]
+
+				if 'league' in rows[0].text.lower():
+					first_row = rows[1]
+
 				if first_row:
 					hdr = first_row.find('th')
 					if hdr:
-						if hdr.text.lower().strip() == 'club':
+						if hdr.text.lower().strip() in {'club', 'team'}:
 							tb = _tb
 							break
 			if not tb:
@@ -138,6 +147,7 @@ class LocalFootballerScraper:
 				return None
 			else:
 				for i, h in enumerate(_hs):
+					
 					header_text = h.text.lower().strip()
 					if 'player' in header_text:
 						idx_player = i
@@ -145,7 +155,9 @@ class LocalFootballerScraper:
 						idx_country = i
 		
 		if not idx_country:
+
 			player_row = tab.find(class_='vcard agent')
+
 			for i, _ in enumerate(player_row.find_all('td')):
 				if _.find(class_='flagicon'):
 					idx_country = i
@@ -178,6 +190,9 @@ class LocalFootballerScraper:
 					return self
 
 				else:
+
+					if 'staff' in ' '.join([h.text.lower() for h in tb.find_all('th')]):
+						return self
 
 					idx_country, idx_player = self._find_flag_player(tb)
 				
@@ -238,7 +253,7 @@ class LocalFootballerScraper:
 
 if __name__ == '__main__':
 
-	c = LocalFootballerScraper('england').get_names().save_to_file()
+	c = LocalFootballerScraper('qatar').get_names().save_to_file()
 
 
 
