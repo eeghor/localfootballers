@@ -39,7 +39,9 @@ class LocalFootballerScraper:
 								  				 f'{self.wiki_url}/wiki/EFL_Championship'],
 								  'saudi arabia': [f'{self.wiki_url}/wiki/Saudi_Professional_League'],
 								  'united arab emirates': [f'{self.wiki_url}/wiki/UAE_Pro-League'],
-								  'qatar': [f'{self.wiki_url}/wiki/Qatar_Stars_League']}
+								  'qatar': [f'{self.wiki_url}/wiki/Qatar_Stars_League'],
+								  'portugal': [f'{self.wiki_url}/wiki/Primeira_Liga',
+								  				f'{self.wiki_url}/wiki/LigaPro']}
 		self.COUNTRY = country
 		self.team_urls = {}
 		self.DATA_DIR = 'collected_data'
@@ -135,7 +137,7 @@ class LocalFootballerScraper:
 
 		if not _first_row:
 			print('table without rows?')
-			return None
+			return (None, None)
 		else:
 			td_children = sum([1 for c in _first_row.children if c.name == 'td'])
 			if td_children == 3:
@@ -144,7 +146,7 @@ class LocalFootballerScraper:
 				_hs = _first_row.find_all('th')
 			if not _hs:
 				print('table has no header!')
-				return None
+				return (None, None)
 			else:
 				for i, h in enumerate(_hs):
 					
@@ -158,10 +160,15 @@ class LocalFootballerScraper:
 
 			player_row = tab.find(class_='vcard agent')
 
-			for i, _ in enumerate(player_row.find_all('td')):
-				if _.find(class_='flagicon'):
-					idx_country = i
-					break
+			if not player_row:
+				print('table without players?')
+				return (None, None)
+			else:
+
+				for i, _ in enumerate(player_row.find_all('td')):
+					if _.find(class_='flagicon'):
+						idx_country = i
+						break
 
 		return (idx_country, idx_player)
 		
@@ -195,37 +202,39 @@ class LocalFootballerScraper:
 						return self
 
 					idx_country, idx_player = self._find_flag_player(tb)
+
+					if all([idx_country, idx_player]):
 				
-					rows_pl = tb.find_all(class_='vcard agent')
+						rows_pl = tb.find_all(class_='vcard agent')
+		
+						if rows_pl:
+		
+							for row in rows_pl:
 	
-					if rows_pl:
+								_country = _player = None
+				
+								for i, td in enumerate(row.find_all('td')):		
 	
-						for row in rows_pl:
-
-							_country = _player = None
-			
-							for i, td in enumerate(row.find_all('td')):		
-
-								if i == idx_country:
-
-									try:
-										_country = td.find('a')['title'].lower()
-									except:
-										print('can\'t find country!')
-
-								if i == idx_player:
-
-									_spans = td.find_all('span')
-
-									if _spans:
-
-										_player = _spans[-1].text.lower().strip().split('(')[0].strip()
-										
-										if 'on loan' in _player:
-											_player = _player.split('on loan')[0].strip()
-
-							if _country and _player and (_country == self.COUNTRY):
-								self.players.add(_player)
+									if i == idx_country:
+	
+										try:
+											_country = td.find('a')['title'].lower()
+										except:
+											print('can\'t find country!')
+	
+									if i == idx_player:
+	
+										_spans = td.find_all('span')
+	
+										if _spans:
+	
+											_player = _spans[-1].text.lower().strip().split('(')[0].strip()
+											
+											if 'on loan' in _player:
+												_player = _player.split('on loan')[0].strip()
+	
+								if _country and _player and (_country == self.COUNTRY):
+									self.players.add(_player)
 	
 		return self
 
@@ -239,7 +248,7 @@ class LocalFootballerScraper:
 			print(f'{team.upper()}...')
 
 			for span_id in """Current_squad First_team First-team_squad First-Team_Squad First_Team_Squad Reserve_team On_loan 
-								Out_on_loan Reserve_squad First_team_squad Senior_team_squad Reserve_teams""".split():
+								Out_on_loan Reserve_squad First_team_squad Senior_team_squad Reserve_teams Players""".split():
 				self._get_squad_table(self.team_urls[team], span_id)
 
 		return self
@@ -253,7 +262,7 @@ class LocalFootballerScraper:
 
 if __name__ == '__main__':
 
-	c = LocalFootballerScraper('qatar').get_names().save_to_file()
+	c = LocalFootballerScraper('portugal').get_names().save_to_file()
 
 
 

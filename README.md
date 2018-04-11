@@ -15,6 +15,7 @@ So far, the script has been confirmed working on the **top two**
 * Italian
 * English
 * South Korean
+* Portuguese
 
 leagues.
 
